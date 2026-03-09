@@ -1,0 +1,383 @@
+```html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tabungan Siswa</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial, sans-serif;
+background:#0f172a;
+color:white;
+display:flex;
+}
+
+/* LOGIN */
+
+.login{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#0f172a;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.login-box{
+background:#1f2937;
+padding:40px;
+border-radius:10px;
+width:300px;
+text-align:center;
+}
+
+.login input{
+width:100%;
+padding:10px;
+margin-top:10px;
+border-radius:6px;
+border:none;
+}
+
+.login button{
+margin-top:10px;
+padding:10px;
+width:100%;
+border:none;
+border-radius:6px;
+background:#3b82f6;
+color:white;
+cursor:pointer;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+width:260px;
+background:#111827;
+padding:25px;
+height:100vh;
+box-sizing:border-box;
+}
+
+.card{
+background:#1f2937;
+padding:20px;
+border-radius:10px;
+margin-bottom:20px;
+}
+
+.saldo{
+font-size:24px;
+font-weight:bold;
+}
+
+.asma{
+color:#f472b6;
+}
+
+.hanifah{
+color:#a78bfa;
+}
+
+/* MAIN */
+
+.main{
+flex:1;
+padding:40px;
+}
+
+.table{
+background:#1f2937;
+border-radius:10px;
+overflow:hidden;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th, td{
+padding:15px;
+text-align:left;
+}
+
+th{
+background:#374151;
+}
+
+tr:nth-child(even){
+background:#111827;
+}
+
+.badge{
+padding:4px 10px;
+border-radius:8px;
+font-size:12px;
+}
+
+.nabung{
+background:#14532d;
+color:#4ade80;
+}
+
+.ambil{
+background:#7f1d1d;
+color:#f87171;
+}
+
+.jumlah-nabung{
+color:#4ade80;
+font-weight:bold;
+}
+
+.jumlah-ambil{
+color:#f87171;
+font-weight:bold;
+}
+
+/* FORM */
+
+.form{
+margin-top:20px;
+background:#1f2937;
+padding:20px;
+border-radius:10px;
+}
+
+input, select{
+width:100%;
+padding:10px;
+margin-top:8px;
+margin-bottom:10px;
+border-radius:6px;
+border:none;
+}
+
+button{
+background:#3b82f6;
+border:none;
+padding:10px;
+border-radius:6px;
+color:white;
+cursor:pointer;
+}
+
+button:hover{
+background:#2563eb;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+
+<div class="login" id="loginPage">
+
+<div class="login-box">
+
+<h2>🔒 Masukkan Password</h2>
+
+<input type="password" id="password" placeholder="Kata sandi">
+
+<button onclick="login()">Masuk</button>
+
+<p id="error" style="color:red;"></p>
+
+</div>
+
+</div>
+
+
+<!-- WEBSITE -->
+
+<div id="app" style="display:none; width:100%; display:flex;">
+
+<div class="sidebar">
+
+<h2>💰 Total Tabungan</h2>
+
+<div class="card">
+<p class="asma">Asma Amatillah</p>
+<div class="saldo asma" id="saldoAsma">Rp 0</div>
+</div>
+
+<div class="card">
+<p class="hanifah">Hanifah Ahsanti</p>
+<div class="saldo hanifah" id="saldoHanifah">Rp 0</div>
+</div>
+
+</div>
+
+<div class="main">
+
+<h1>Pencatatan Uang Siswa</h1>
+
+<div class="table">
+
+<table>
+
+<thead>
+<tr>
+<th>Tanggal</th>
+<th>Nama</th>
+<th>Jenis</th>
+<th>Jumlah</th>
+</tr>
+</thead>
+
+<tbody id="data"></tbody>
+
+</table>
+
+</div>
+
+<div class="form">
+
+<h3>Tambah Transaksi</h3>
+
+<select id="nama">
+<option>Asma Amatillah</option>
+<option>Hanifah Ahsanti</option>
+</select>
+
+<select id="jenis">
+<option value="nabung">Menabung</option>
+<option value="ambil">Mengambil</option>
+</select>
+
+<input type="number" id="jumlah" placeholder="Jumlah uang">
+
+<select id="satuan">
+<option value="1">Rupiah</option>
+<option value="1000">Ribu</option>
+<option value="1000000">Juta</option>
+</select>
+
+<button onclick="tambah()">Simpan</button>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let transaksi = JSON.parse(localStorage.getItem("transaksi")) || [];
+
+/* LOGIN */
+
+function login(){
+
+let pass = document.getElementById("password").value;
+
+if(pass === "kit blok d"){
+
+document.getElementById("loginPage").style.display="none";
+document.getElementById("app").style.display="flex";
+
+render();
+
+}else{
+
+document.getElementById("error").innerText="Password salah";
+
+}
+
+}
+
+/* FORMAT RUPIAH */
+
+function rupiah(x){
+return "Rp " + x.toLocaleString("id-ID");
+}
+
+/* MENAMPILKAN DATA */
+
+function render(){
+
+let saldoAsma = 0;
+let saldoHanifah = 0;
+
+let tbody = document.getElementById("data");
+tbody.innerHTML="";
+
+transaksi.slice().reverse().forEach(t=>{
+
+if(t.nama=="Asma Amatillah"){
+if(t.jenis=="nabung"){ saldoAsma+=t.jumlah } else { saldoAsma-=t.jumlah }
+}
+
+if(t.nama=="Hanifah Ahsanti"){
+if(t.jenis=="nabung"){ saldoHanifah+=t.jumlah } else { saldoHanifah-=t.jumlah }
+}
+
+let tr=document.createElement("tr");
+
+let warnaJumlah = t.jenis=="nabung" ? "jumlah-nabung" : "jumlah-ambil";
+let badge = t.jenis=="nabung" ? "nabung" : "ambil";
+let warnaNama = t.nama=="Asma Amatillah" ? "asma" : "hanifah";
+
+tr.innerHTML=`
+<td>${t.tanggal}</td>
+<td class="${warnaNama}">${t.nama}</td>
+<td><span class="badge ${badge}">${t.jenis}</span></td>
+<td class="${warnaJumlah}">
+${t.jenis=="nabung" ? "+" : "-"} ${rupiah(t.jumlah)}
+</td>
+`;
+
+tbody.appendChild(tr);
+
+});
+
+document.getElementById("saldoAsma").innerText = rupiah(saldoAsma);
+document.getElementById("saldoHanifah").innerText = rupiah(saldoHanifah);
+
+}
+
+/* TAMBAH TRANSAKSI */
+
+function tambah(){
+
+let nama=document.getElementById("nama").value;
+let jenis=document.getElementById("jenis").value;
+
+let jumlahInput = Number(document.getElementById("jumlah").value);
+let satuan = Number(document.getElementById("satuan").value);
+
+let jumlah = jumlahInput * satuan;
+
+let tanggal=new Date().toLocaleDateString("id-ID");
+
+transaksi.push({
+tanggal,
+nama,
+jenis,
+jumlah
+});
+
+localStorage.setItem("transaksi",JSON.stringify(transaksi));
+
+render();
+
+document.getElementById("jumlah").value="";
+
+}
+
+</script>
+
+</body>
+</html>
+```
