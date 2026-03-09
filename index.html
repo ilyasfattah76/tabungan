@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pencatatan Uang Siswa</title>
+<title>Tabungan Siswa</title>
 
 <style>
 
@@ -79,8 +79,6 @@ font-size:24px;
 font-weight:bold;
 }
 
-/* WARNA NAMA */
-
 .asma{
 color:#f472b6;
 }
@@ -145,6 +143,8 @@ font-weight:bold;
 color:#f87171;
 font-weight:bold;
 }
+
+/* FORM */
 
 .form{
 margin-top:20px;
@@ -258,6 +258,12 @@ background:#2563eb;
 
 <input type="number" id="jumlah" placeholder="Jumlah uang">
 
+<select id="satuan">
+<option value="1">Rupiah</option>
+<option value="1000">Ribu</option>
+<option value="1000000">Juta</option>
+</select>
+
 <button onclick="tambah()">Simpan</button>
 
 </div>
@@ -270,7 +276,7 @@ background:#2563eb;
 
 let transaksi = JSON.parse(localStorage.getItem("transaksi")) || [];
 
-/* LOGIN PASSWORD */
+/* LOGIN */
 
 function login(){
 
@@ -347,7 +353,11 @@ function tambah(){
 
 let nama=document.getElementById("nama").value;
 let jenis=document.getElementById("jenis").value;
-let jumlah=Number(document.getElementById("jumlah").value);
+
+let jumlahInput = Number(document.getElementById("jumlah").value);
+let satuan = Number(document.getElementById("satuan").value);
+
+let jumlah = jumlahInput * satuan;
 
 let tanggal=new Date().toLocaleDateString("id-ID");
 
